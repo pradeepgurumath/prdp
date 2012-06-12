@@ -990,17 +990,22 @@ git reset --hard ol_r8.a1.06
 git clone git://github.com/TI-OpenLink/hostap.git
 git checkout ti_wcs/upstream-android -b upstream-android
 git reset --hard ol_r8.a1.06
-3) Compat
+3) 18xx-ti-utils
+git clone git://github.com/TI-OpenLink/18xx-ti-utils.git
+cd 18xx-ti-utils
+git checkout origin/HEAD
+git reset --hard r8.a2.07
+4) Compat
 git clone git://github.com/TI-OpenLink/compat.git
 cd compat
 git checkout ol_r8.a1.06
 cd ..
-4) Compat-Wireless
+5) Compat-Wireless
 git clone git://github.com/TI-OpenLink/compat-wireless.git
 cd compat-wireless
 git checkout ol_r8.a1.06 -b wlcore
 cd ..
-5) Compat Generation
+6) Compat Generation
 pushd compat-wireless
 export ARCH=arm
 export GIT_TREE=wl18xx  //make sure to give absolute path
