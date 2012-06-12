@@ -1051,3 +1051,9 @@ Comment out the the following lines
 # This Kernel Release info is obtained from either /proc/version or printed at the beginning of the kernel boot up
 KERNELRELEASE = 3.0.21-00003-OMAP-Android+
 KERNELVERSION = 3.0.21-00003-OMAP-Android+
+
+How to push new files to a remote git tree
+git remote add origin https://github.com/pradeepgurumath/prdp.git
+
+How to update an existing file to a remote git tree
+git push -u origin master
