@@ -420,16 +420,16 @@ RAMDISK.IMG
 
 SYSTEM.IMG
 ==========
- #uncompress
- %./out/host/linux-x86/bin/simg2img system.img system.img.raw
- #mount to directory mnt-point/
- %mkdir mnt-point
- %sudo mount -t ext4 -o loop system.img.raw mnt-point/
- #modify any .so or apk in the mnt-point/ directory
- #rezip
- %sudo out/host/linux-x86/bin/make_ext4fs -s -l 512M -a system system.img.new mnt-point/
- %sudo umount mnt-point/
- Output: system.img.new
+#uncompress
+./out/host/linux-x86/bin/simg2img system.img system.img.raw
+#mount to directory mnt-point/
+mkdir mnt-point
+sudo mount -t ext4 -o loop system.img.raw mnt-point/
+#modify any .so or apk in the mnt-point/ directory
+#rezip
+sudo out/host/linux-x86/bin/make_ext4fs -s -l 512M -a system system.img.new mnt-point/
+sudo umount mnt-point/
+Output: system.img.new
 
 USERDATA.IMG
 ============
@@ -1018,10 +1018,6 @@ Enter into fastboot mode
 Now change the DIP switches back and remove the SD card, reboot and enter the fastboot mode
 ./fastboot.sh
 
-root@android:/system/lib/modules # cat /proc/version
-Linux version 3.0.21-00003-OMAP-Android+ (x0099046local@udx0099046) (gcc version 4.4.1 (Sourcery G++ Lite 2010q1-202) ) #1 SMP PREEMPT Mon Jun 11 15:42:08 CDT 2012
-root@android:/system/lib/modules #
-
 # CCACHE settings for building Android FS faster
 export USE_CCACHE=1
 # To be run only once for a PC
@@ -1048,6 +1044,11 @@ Comment out the the following lines
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 #KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
 #KERNELVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
+
+root@android:/system/lib/modules # cat /proc/version
+Linux version 3.0.21-00003-OMAP-Android+ (x0099046local@udx0099046) (gcc version 4.4.1 (Sourcery G++ Lite 2010q1-202) ) #1 SMP PREEMPT Mon Jun 11 15:42:08 CDT 2012
+root@android:/system/lib/modules #
+
 # This Kernel Release info is obtained from either /proc/version or printed at the beginning of the kernel boot up
 KERNELRELEASE = 3.0.21-00003-OMAP-Android+
 KERNELVERSION = 3.0.21-00003-OMAP-Android+
