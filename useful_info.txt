@@ -1,0 +1,1053 @@
+
+root@android:/ #ICS Link
+========
+http://opbuwiki.dal.design.ti.com/index.php/Android_MAC80211
+http://opbuwiki.dal.design.ti.com/index.php/ICS_on_K3.0
+
+Getting Private ICE
+===================
+repo init -u ssh://x0099046@android.dal.design.ti.com:29418/platform/omapmanifest.git -b master-ti --repo-url=git://git.omapzoom.org/tools/repo
+repo init
+
+Getting Public ICE
+==================
+repo init -u git://git.omapzoom.org/platform/omapmanifest -b ics-mr1
+repo sync
+
+ICE BUILD
+=========
+% cd $ics_base
+% . ./build/envsetup.sh
+% lunch
+(choose blaze, specifically "full_blaze-userdebug")
+% make
+Output: New out/target/product/blaze/*.img (boot.img, system.img, etc)
+
+Updating kernel (new boot.img):
+===============================
+% cd $ics_base
+% unlink device/ti/blaze/boot/zImage
+% cp $(kernel_root)/arch/arm/boot/zImage device/ti/blaze/boot/zImage
+% rm out/target/product/blaze/boot.img
+% rm out/target/product/blaze/boot/zImage
+% rm out/target/product/blaze/kernel
+% make -j4
+
+
+Getting kernel 3.1
+==============
+git clone git://git.omapzoom.org/kernel/omap.git
+cd omap
+git checkout --track -b p-android-omap-3.1 origin/p-android-omap-3.1
+git pull
+
+Kernel Build
+============
+- Blaze   - blaze_defconfig
+- Tablet1 - blaze_defconfig
+- Tablet2 - blaze_defconfig
+- Panda   - panda_defconfig
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- blaze_defconfig
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- 
+
+COMPAT Generation procedure
+===========================
+https://github.com/ti-openlink
+
+Getting kernel 3.1
+==================
+git clone git://gitorious.tif.ti.com/omap5-wake-up/linux-omap.git
+cd linux-omap
+git checkout --track -b int6 origin/int6
+
+VIMARSH Tree
+============
+git clone git://gitorious.tif.ti.com/~a0400827/omap5-wake-up/linux-omap-vimarsh.git
+Branch: int4+4460
+git checkout --track -b int4+4460 origin/int4+4460
+working commit id: 30b4b9dd609ed1a3f6b0caa6596b01e95f10d348
+((HEAD is now at 30b4b9d ARM: cache-l2x0: update workaround for PL310 errata 727915))
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- blaze_defconfig
+
+PALMAS Kernel
+=============
+git://gitorious.tif.ti.com/~a0876363/linux-omap/linux-omap-pm.git
+Branch: OMAP5_LDC_PM_5AI1.6_P1
+Defconfig: omap2plus_defconfig
+
+Defconfig changes
+Symbol: PALMAS_USB [=y]
+Symbol: MFD_PALMAS_GPADC [=y]
+Symbol: MFD_PALMAS [=y]
+Symbol: OMAP4460_SEVM_PALMAS [=y]
+Symbol: REGULATOR_PALMAS [=y]
+Symbol: MFD_PALMAS_RESOURCE [=y]
+Symbol: GPIO_PALMAS [=y]
+
+Boot args:
+setenv bootargs console=ttyO2,115200n8 mem=920M@0x80000000 root=/dev/mmcblk1p2 rw rootdelay=2 init=/init  vram="10M" omapfb.vram="0:4M"
+setenv bootcmd 'mmcinit 0;fatload mmc 0 0x80000000 uImage;bootm 80000000'
+boot
+
+git blame  arch/arm/mach-omap2/board-4430sdp.c
+git show 33ccb504
+
+Getting WLAN tree alone
+=======================
+git clone ssh://android.dal.design.ti.com:29418/platform/hardware/ti/wlan.git
+cd wlan
+git checkout --track -b p-master origin/p-master
+
+Public WLAN Tree (better one)
+git clone git://git.omapzoom.org/platform/hardware/ti/wlan.git
+cd wlan
+git checkout --track -b p-ics-mr1 origin/p-ics-mr1
+
+USEFUL logcat commands
+=======================
+logcat -c hostapd:V *:S
+logcat -v time wpa_supplicant:V *.S
+
+USEFUL git commands
+Git or repo resubmitting the changed patch:
+===========================================
+git push ssh://Manjunatha@review.omapzoom.org:29418/platform/hardware/ti/wpan.git HEAD:refs/changes/13447
+
+Reset topmost n patches
+========================
+git reset --hard HEAD^n
+
+Git or Repo Push:
+=================
+git push ssh://Manjunatha@review.omapzoom.org:29418/kernel/omap.git -v HEAD:refs/for/p-android-omap-3.0
+
+Push to ICS:
+============
+Old -   git push ssh://x0130808@android.dal.design.ti.com:29418/platform/hardware/ti/wpan.git HEAD:refs/changes/3821
+New -   git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/blaze.git -v HEAD:refs/for/p-ics-mr1
+
+Pushing against MWC branch:
+===========================
+git push ssh://pradeepgurumath@android2.dal.design.ti.com:29428/platform/hardware/ti/wlan.git -v HEAD:refs/for/mwc-omap5-ics-mr1 
+git push ssh://x0099046@android2.dal.design.ti.com:29428/platform/hardware/ti/wlan.git -v HEAD:refs/for/mwc-omap5-ics-mr1
+
+R8 package commands:
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/platform/hardware/ti/wlan.git -v HEAD:refs/for/p-ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/blaze.git -v HEAD:refs/for/ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/blaze_tablet.git -v HEAD:refs/for/ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/omap5sevm -v HEAD:refs/for/ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/platform/system/core -v HEAD:refs/for/p-ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/platform/external/wpa_supplicant_8 -v HEAD:refs/for/p-ics-mr1
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/proprietary-open -v HEAD:refs/for/ics-mr1
+
+To update an existing patch (using same Chage-Id):
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/proprietary-open -v HEAD:refs/changes/THE_EXISTING_COMMIT_ID
+example: http://review.omapzoom.org/#/c/21534/
+
+To amend 2nd patch in the git log
+git rebase --interactive 3rd-commit-id-of-gitlog
+Change pick to edit
+{changes to be done}
+git commit --amend
+git rebase --continue
+git reset --hard second-commit-id
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/proprietary-open -v HEAD:refs/changes/THE_EXISTING_COMMIT_ID
+cheery pick the first patch and check if the first patch applies correctly
+
+kernel updates:
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/kernel/omap -v HEAD:refs/for/p-android-omap-3.4
+
+To obtain the commit-msg script use scp, wget or curl to copy it to your local system:
+======================================================================================
+scp -p -P 29418 review.example.com:hooks/commit-msg .git/hooks/
+Ex: scp -p -P 29418 Manjunatha@review.omapzoom.org:/hooks/commit-msg .git/hooks/
+
+To recover the lost commit:
+===========================
+git fsck --lost-found
+git rebase fe2cd649acadad911e3ce5a30449443ebce9615a
+
+SED command for correcting the patches
+======================================
+find . -name *.patch | xargs sed -i 's/a\//a\/mac80211\/compat\//'
+find . -name *.patch | xargs sed -i 's/b\//b\/mac80211\/compat\//'
+
+ls | xargs sed -i 's/a\//a\/mac80211\/compat_wl18xx\//'
+ls | xargs sed -i 's/b\//b\/mac80211\/compat_wl18xx\//'
+
+MAC802.11 build
+================
+cd $MYDROID/hardware/ti/wlan/mac80211/compat
+export KLIB=/path/to/kernel
+export KLIB_BUILD=/path/to/kernel
+export ARCH=arm
+make
+
+Preparing the boot image for EMMC
+=================================
+mkbootimg --kernel zImage --ramdisk ramdisk.img --cmdline "console=ttyO2,115200n8 mem=1G vmalloc=768M androidboot.console=ttyO2 omap_wdttimer_margin=30" -o boot.img
+
+Load binaries and firmware
+===========================
+cd $OUT
+mkdir system/lib/modules
+cp compat/compat.ko /system/lib/modules/
+cp net/wireless/cfg80211.ko /system/lib/modules/
+cp net/mac80211/mac80211.ko /system/lib/modules/
+cp drivers/net/wireless/wl12xx/wl12xx.ko /system/lib/modules/
+cp drivers/net/wireless/wl12xx/wl12xx_sdio.ko /system/lib/modules/
+
+cd $OUT
+mkdir system/etc/firmware
+mkdir system/etc/firmware/ti-connectivity
+cp wl1271-nvs.bin system/etc/firmware/ti-connectivity/
+cp wl128x-fw-multirole-plt.bin system/etc/firmware/ti-connectivity/
+cp wl128x-fw-multirole-roc.bin system/etc/firmware/ti-connectivity/
+
+WLAN Calibration Instruction
+============================
+	1) Mount system partition as writable
+	mount -o remount rw /system
+
+	2) Go to firmware directory
+	cd /system/etc/firmware/ti-connectivity/
+
+	3) Create reference NVS file
+	calibrator set ref_nvs /system/etc/wifi/TQS_D_1.7.ini
+	mv ./new-nvs.bin /system/etc/firmware/ti-connectivity/wl1271-nvs.bin
+
+	4) Load driver
+	/system/bin/insmod /system/lib/modules/wl12xx_sdio.ko
+
+	5) Execute Calibrator commands
+	calibrator wlan0 plt power_mode on
+	calibrator wlan0 plt tune_channel 0 7
+	calibrator wlan0 plt tx_bip 1 1 1 1 1 1 1 1
+	calibrator wlan0 plt power_mode off
+
+	6) Update NVS with random mac address (Don't give second argument of MAC adress)
+	calibrator set nvs_mac ./new-nvs.bin
+
+	7) Unload driver and move calibration file to right location
+	/system/bin/rmmod wl12xx_sdio
+	/system/bin/rmmod wl12xx
+
+	mv ./new-nvs.bin /system/etc/firmware/ti-connectivity/wl1271-nvs.bin
+	/system/bin/insmod /system/lib/modules/wl12xx.ko
+
+	8) wifical.sh
+
+Manual Load Wi-Fi
+=================
+http://omappedia.com/wiki/Mac80211_based_open_source_architecture
+insmod /system/lib/modules/compat.ko
+insmod /system/lib/modules/cfg80211.ko
+insmod /system/lib/modules/mac80211.ko
+insmod /system/lib/modules/wl12xx.ko debug_level=0x63c00
+insmod /system/lib/modules/wl12xx_sdio.ko
+
+Do the below line before doing ifconfig up
+# 0 - FPGA, 1 - HDK (default) , 2 - DVP/EVB
+echo '2' > /sys/kernel/debug/ieee80211/phy0/wl12xx/hw_board_type
+
+ifconfig wlan0 192.168.0.200 up
+
+To enter text on GUI using command prompt
+=========================================
+input text <your text>
+# to select “enter”
+input keyevent 66
+
+Using Supplicant
+================
+	start "wpa_supplicant:-c/data/misc/wifi/wpa_supplicant.conf"
+
+	wpa_cli
+	add_network
+	set_network 0 ssid "name of AP"
+	set_network 0 key_mgmt NONE
+	enable_network 0
+	status
+	disable_network 0
+
+To connect to an AP with WPA1 security (WPA-TKIP security)	
+   add_network
+   set_network 0 ssid "name of AP"
+   set_network 0 key_mgmt WPA-PSK
+   set_network 0 pairwise TKIP
+   set_network 0 psk "key"
+   enable_network 0
+   
+To connect to an AP with WPA2 security (With WPA-AES-CCMP security)
+   add_network
+   set_network 0 ssid "name of AP"
+   set_network 0 key_mgmt WPA-PSK
+   set_network 0 pairwise CCMP
+   set_network 0 psk "key"
+   enable_network 0
+
+Without using Supplicant
+========================
+	iw wlan0 scan
+	iw wlan0 connect AP_NAME
+
+Dynamic Debugging
+=================
+make menuconfig
+enable kernel hacking/dynamic debugging
+
+echo 8 > /proc/sys/kernel/printk
+echo  'module cfg80211 +p' > /sys/kernel/debug/dynamic_debug/control 
+echo 'module mac80211 +p' > /sys/kernel/debug/dynamic_debug/control
+echo 'module wl12xx +p' > /sys/kernel/debug/dynamic_debug/control
+
+WLAN Debugging
+==============
+mkdir /d
+mount -t debugfs /debug /d
+cd /d/ieee80211/phy0/wl12xx
+cat hw_board_type
+echo 4 > hw_board_type
+
+
+
+Booting with SD Card
+=======================
+1) Set the dip settings to turn on 4
+
+mmcinit 0
+mmcinit 1
+
+setenv bootargs console=ttyO2,115200n8 androidboot.console=ttyO2 mem=456M@0x80000000 mem=512M@0xA0000000 root=/dev/mmcblk1p2 rw rootdelay=2 init=/init vram="10M" omapfb.vram="0:4M"
+setenv bootcmd 'mmcinit 0; fatload mmc 0 0x80000000 uImage;bootm 80000000'
+boot
+
+OR
+
+ibus 0 0x64
+imw 0x2d 0x33 0x59
+
+setenv bootargs console=ttyO2,115200n8 mem=920M@0x80000000 root=/dev/mmcblk1p2 rw rootdelay=2 init=/init  vram="10M" omapfb.vram="0:4M"
+setenv bootcmd 'mmcinit 0;fatload mmc 0 0x80000000 uImage;bootm 80000000'
+
+setenv bootargs console=ttyO2,115200n8 mem=920M@0x80000000 root=/dev/mmcblk1p2 rw rootfstype=ext3 rootdelay=2 init=/bin/sh  vram="10M" omapfb.vram="0:4M"
+setenv bootcmd 'mmcinit 0;fatload mmc 0 0x80000000 uImage;bootm 80000000'
+
+
+Booting with Busybox FileSystem
+===============================
+
+insmod compat.ko
+insmod cfg80211.ko
+insmod mac80211.ko
+insmod wl12xx.ko debug_level=0x63c00
+
+// NVS File
+insmod wl12xx_sdio.ko &
+sleep 2
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/18xx/wl1271-nvs.bin > data
+echo 0 > loading
+
+
+// 18xx Firmware file
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/18xx/wl18xx-fw-multirole-roc.bin > data
+echo 0 > loading
+
+// 12xx Firmware file
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/wl128x-fw-multirole-roc.bin > data
+echo 0 > loading
+
+
+OMAP5 Resources
+===============
+http://opbuwiki.dal.design.ti.com/index.php/OMAP5-5AI.1.4_Release#Zebu
+
+http_proxy=http://webproxy.ext.ti.com:80
+ftp_proxy=http://webproxy.ext.ti.com:80
+https_proxy=http://webproxy.ext.ti.com:80
+
+Android eMMC Booting
+====================
+http://omappedia.org/wiki/Android_eMMC_Booting
+
+File locations
+===============
+MLO --> x-loader/MLO
+u-boot --> u-boot/u-boot.bin
+boot.img --> need to create using zImage + ramdisk.img
+recovery.img ---> need to create using zImage + ramdisk-recovery.img
+system.img --> $mydroid/out/target/product/<platform>/system.img
+cache.img -->
+userdata.img --> $mydroid/out/target/product/<platform>/userdata.img
+
+Modifying IMG files
+===================
+BOOT.IMG
+========
+boot.img = zImage + ramdisk.img
+ zImage = kernel image
+ ramdisk.img = out/target/product/blaze/root/
+ %./out/host/linux-x86/bin/mkbootimg 
+ --kernel zImage 
+ --ramdisk ramdisk.img 
+ --base 0x80000000 
+ --cmdline "console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 init=/init vram=10M omapfb.vram=0:4M androidboot.console=ttyO2" 
+ --board omap4 
+ -o boot.img.new
+ Output: boot.img.new
+ **Note: bootarg is passed to kernel via --cmdline option above
+%fastboot boot boot.img
+
+RAMDISK.IMG
+===========
+%mkdir root
+ %cd root
+ %gunzip -c ../ramdisk.img | cpio -i
+ <make changes to root/ contents...>
+ %./out/host/linux-x86/bin/mkbootfs root/ | ./out/host/linux-x86/bin/minigzip >ramdisk.img.new
+ #output: ramdisk.img.new
+ ** Note: any init.rc changes will need to use this method
+
+SYSTEM.IMG
+==========
+ #uncompress
+ %./out/host/linux-x86/bin/simg2img system.img system.img.raw
+ #mount to directory mnt-point/
+ %mkdir mnt-point
+ %sudo mount -t ext4 -o loop system.img.raw mnt-point/
+ #modify any .so or apk in the mnt-point/ directory
+ #rezip
+ %sudo out/host/linux-x86/bin/make_ext4fs -s -l 512M -a system system.img.new mnt-point/
+ %sudo umount mnt-point/
+ Output: system.img.new
+
+USERDATA.IMG
+============
+#uncompress
+ %./out/host/linux-x86/bin/simg2img userdata.img userdata.img.raw
+ #mount to directory mnt-point/
+ %mkdir mnt-point
+ %sudo mount -t ext4 -o loop userdata.img.raw mnt-point/
+ #modify any .so or apk in the mnt-point/ directory
+ #rezip
+ #%sudo ./out/host/linux-x86/bin/make_ext4fs -s -l 512M -a userdata userdata.img.new mnt/
+ # Above command won't work on GB/HC. For GB/HC, please use the following updated command
+ %sudo ./out/host/linux-x86/bin/make_ext4fs -s -l 512M -a data userdata.img.new mnt/
+ %sudo umount mnt-point/
+ Output: userdata.img.new
+
+CACHE.IMG
+=========
+#This is empty ext4 fs image
+ %mkdir mnt-point/
+ %sudo ./make_ext4fs -s -l 256M -a cache cache.img mnt-point/
+ Output: cache.img
+
+http://omappedia.com/wiki/Android_eMMC_Booting
+mkbootimg --kernel zImage --ramdisk ramdisk.img --base 0x80000000 --cmdline "console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 init=/init vram=10M omapfb.vram=0:4M androidboot.console=ttyO2" --board omap4 -o boot.img
+
+Updating boot.img (KERNEL)
+==========================
+./mkbootimg --kernel zImage --ramdisk ramdisk.img --base 0x80000000 --cmdline "console=ttyO2,115200n8 mem=920M@0x80000000 init=/init vram=10M omapfb.vram=0:4M androidboot.console=ttyO2" --board omap4 -o boot.img
+
+
+Using fastboot commands
+=======================
+fastboot devices
+fastboot flash xloader     MLO
+fastboot flash bootloader  u-boot.bin
+fastboot flash recovery    recovery.img
+fastboot flash boot        boot.img
+fastboot flash system      system.img
+fastboot flash cache       cache.img
+fastboot flash userdata    userdata.img
+
+TEMP
+insmod compat.ko
+insmod cfg80211.ko
+insmod mac80211.ko
+insmod wl12xx.ko
+
+insmod wl12xx_sdio.ko &
+sleep 2
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/18xx/wl128x-nvs.bin > data
+echo 0 > loading
+
+// 12xx Firmware file
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/wl128x-fw.bin > data
+echo 0 > loading
+
+// 12xx Firmware file -- vimarsh kernel
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/blaze/wl128x-fw-multirole-plt.bin > data
+echo 0 > loading
+
+
+
+~/src/wlan/mac80211/compat
+~/src/omap5/sevm_kernel_3.1/linux-omap-storage
+
+~/src/omap5/sevm_kernel_3.1/linux-omap-pm
+
+
+ibus 0 0x64
+imw 0x2d 0x33 0x59
+
+setenv bootargs console=ttyO2,115200n8 mem=920M@0x80000000 root=/dev/mmcblk1p2 rw rootdelay=2 init=/init vram="10M" omapfb.vram="0:4M"
+setenv bootcmd 'mmcinit 0;fatload mmc 0 0x80000000 uImage;bootm 80000000'
+
+
+cd /wifi/18xx
+
+gunzip *.gz
+
+insmod compat.ko
+insmod cfg80211.ko
+insmod mac80211.ko
+insmod wl12xx.ko debug_level=0x63c00
+
+insmod wl12xx_sdio.ko &
+sleep 2
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/wl18xx-nvs.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/18xx_sta_cortex_mac_phy_fdsp.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/18xx/18xx.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+sleep 1
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/wl128x-fw-multirole-roc.bin > data
+echo 0 > loading
+
+
+setenv bootargs console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 init=/init
+setenv bootcmd 'mmcinit 0; fatload mmc 0 0x81000000 uImage; bootm 81000000'
+
+insmod wl12xx_sdio.ko &
+sleep 2
+cd /sys/class/firmware/wl12xx
+echo 1 > loading
+cat /wifi/12xx/wl1271-nvs.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+cd /sys/class/firmware/wl12xx
+echo 1 > loading
+cat /wifi/12xx/wl128x-fw-mr.bin.r5 > data
+echo 0 > loading
+
+insmod wl12xx_sdio.ko &
+sleep 2
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/wl1271-nvs.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /wifi/12xx/wl128x-fw-mr.bin.r5 > data
+echo 0 > loading
+
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /system/etc/firmware/ti-connectivity/wl1271-nvs.bin > data
+echo 0 > loading
+
+
+ifconfig wlan0 up &
+cd /sys/class/firmware/mmc2:0001:2
+echo 1 > loading
+cat /system/etc/firmware/ti-connectivity/wl128x-fw.bin > data
+echo 0 > loading
+
+
+
+setenv bootargs console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 init=/init
+setenv bootcmd 'mmcinit 0; fatload mmc 0 0x81000000 uImage; bootm 81000000'
+
+console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 init=/init
+
+ibus 0 0x64
+imw 0x2d 0x33 0x59
+
+mount -t ext3 /dev/mmcblk1p2 /d
+
+OMAP5 source
+git clone -b int7 git://gitorious.tif.ti.com/omap5-wake-up/omap5-wake-up.git
+cd omap5-wake-up
+git fetch --tags
+git checkout INT7_SILICON9
+./sync_source
+
+U-BOOT build
+============
+make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- omap5_evm5430_config
+
+
+insmod compat.ko
+insmod cfg80211.ko
+insmod mac80211.ko
+insmod wl12xx.ko
+insmod wl12xx_sdio.ko
+ifconfig wlan0 192.168.0.220 up
+
+
+iw wlan0 scan
+iw wlan0 connect AciscoA
+iw wlan0 connect CiscoN
+iw wlan0 disconnect
+ping -c500 192.168.0.3
+iperf -c 192.168.0.110 -i1 -t60 -w32k &
+ping 192.168.0.110
+iperf -s -w32k &
+iperf -c 192.168.0.110 -u -i1 -t60 -b45M
+top -d 6 -m 6 -n 10
+wpa_supplicant /system/bin/wpa_supplicant -Dnl80211 -iwlan0 
+
+IPERF TP measurements:
+General Rules:
+1) Window Size on Server: 64k
+2) Window Size on Client: 128K
+3) Since Linux always doubles the requested window size, only half the window size should be specified.
+IPERF TCP TX:
+omap board:
+iperf -s -w64k
+Windows laptop:
+iperf -c <ip> -i1 -t60 -w128k
+
+IPERF TCP RX:
+Windows laptop:
+iperf -s -w64k
+omap board:
+iperf -c <ip> -i1 -t60 -w64k
+
+./wget_android --no-proxy --no-cache http://10.0.0.3/pictures/random_50MB.jpg -O /dev/null
+
+insmod /system/lib/modules/compat.ko
+insmod /system/lib/modules/cfg80211.ko
+insmod /system/lib/modules/mac80211.ko
+insmod /system/lib/modules/wl12xx.ko debug_level=0x63c00
+insmod /system/lib/modules/wl12xx_sdio.ko
+ifconfig wlan0 up
+setprop ctl.start "wpa_supplicant:-c/data/misc/wifi/wpa_supplicant.conf"
+
+Procedure to connect to an p2p device
+Board 1:
+wpa_cli p2p_group_add  freq=2427
+wpa_cli p2p_group_add  freq=5540
+wpa_cli p2p_group_add  freq=5180
+
+wpa_cli p2p_find
+wpa_cli p2p_connect 40:5f:c2:ec:5e:db pbc freq=5180 join
+
+
+Board 2:
+wpa_cli p2p_find
+wpa_cli p2p_peers
+
+wpa_cli p2p_connect <mac address of board1> pbc join
+wpa_cli p2p_connect  7c:8e:e4:25:92:65 pbc join
+wpa_cli p2p_connect  40:5f:c2:ec:5e:db pbc join
+wpa_cli p2p_connect  40:5f:c2:ec:cb:22 pbc join
+
+Board 1:
+wpa_cli wps_pbc
+p2p_connect 00:37:8c:b0:08:b2 pbc freq=5180 auth
+
+To check status:
+wpa_cli status        :     shows whether it is connected or not
+
+
+#
+# mkdir /d
+# mount -t debugfs /debug /d
+# cd /d
+# ls
+asoc            gpio            musb            usb
+bdi             hid             omap_mux        voltage
+bluetooth       memblock        omapdss         vram
+clock           mmc0            pm_debug        wakeup_sources
+emif.1          mmc1            regulator
+emif.2          mmc2            sched_features
+#
+# cd mmc2/
+# ls
+clock      ios        mmc2:0001  regs
+#
+# cd mmc2\:0001/
+# ls
+state
+# cd -
+/d/mmc2
+#
+# pwd
+/d/mmc2
+#
+# ls
+clock      ios        mmc2:0001  regs
+#
+# ls -l
+-rw-------    1 root     root            0 Jan  1  1970 clock
+-r--------    1 root     root            0 Jan  1  1970 ios
+drwxr-xr-x    2 root     root            0 Jan  1  1970 mmc2:0001
+-r--------    1 root     root            0 Jan  1  1970 regs
+#
+# cat regs
+mmc2:
+ enabled:       1
+ dpm_state:     0
+ nesting_cnt:   1
+ ctx_loss:      0:0
+
+regs:
+SYSCONFIG:      0x0000301d
+CON:            0x00000601
+HCTL:           0x00000b02
+SYSCTL:         0x000b0087
+IE:             0x00000000
+ISE:            0x00000000
+CAPA:           0x04e10080
+#
+# cat clock
+50000000
+# cat ios
+clock:          50000000 Hz
+vdd:            7 (1.65 - 1.95 V)
+bus mode:       1 (open drain)
+chip select:    0 (don't care)
+power mode:     2 (on)
+bus width:      2 (4 bits)
+timing spec:    2 (sd high-speed)
+# ls
+asoc            gpio            musb            usb
+bdi             hid             omap_mux        voltage
+bluetooth       memblock        omapdss         vram
+clock           mmc0            pm_debug        wakeup_sources
+emif.1          mmc1            regulator
+emif.2          mmc2            sched_features
+#
+#
+
+FOR COM7 + SEVM + KERNEL 3.1 using sdio test driver
+# cat gpio
+GPIOs 0-31, gpio:
+ gpio-7   (omap4:green:debug2  ) out lo
+ gpio-8   (omap4:green:debug3  ) out lo
+ gpio-30  (omap4:green:debug1  ) out lo
+
+GPIOs 32-63, gpio:
+ gpio-34  (eth_irq             ) in  hi
+ gpio-41  (hdmi_gpio_ls_oe     ) out hi
+ gpio-48  (eth_power           ) out hi
+ gpio-50  (omap4:green:debug4  ) out lo
+ gpio-53  (wifi_irq            ) in  hi
+ gpio-54  (wifi_pmena          ) out hi
+ gpio-60  (hdmi_gpio_hpd       ) out hi
+ gpio-61  (omap4:green:debug0  ) out lo
+
+GPIOs 64-95, gpio:
+
+GPIOs 96-127, gpio:
+ gpio-127 (audpwron            ) out lo
+
+GPIOs 128-159, gpio:
+ gpio-134 (vwl1271             ) out hi
+ gpio-138 (quart               ) out hi
+ gpio-139 (omap4:green:user    ) out lo
+
+GPIOs 160-191, gpio:
+ gpio-169 (omap4:blue:user     ) out lo
+ gpio-170 (omap4:red:user      ) out lo
+ gpio-184 (Proximity Sensor    ) in  hi
+ gpio-188 (sfh7741             ) out lo
+#
+#
+#
+
+wpa_cli remove_network 0
+wpa_cli add_network
+wpa_cli set_network 0 auth_alg OPEN
+wpa_cli set_network 0 key_mgmt NONE
+wpa_cli set_network 0 mode 0
+wpa_cli set_network 0 ssid '"AndroidAP"'
+sleep 1
+wpa_cli select_network 0
+
+
+EMMC boot instructions:
+=======================
+system folder
+==============
+simg2img system.img system.img.raw
+mkdir mnt-point
+sudo mount -t ext4 -o loop system.img.raw mnt-point/
+sudo ./make_ext4fs -s -l 512M -a system system.img.new mnt-point/
+sudo umount mnt-point/
+
+Boot folder
+============
+./mkbootimg --kernel zImage --ramdisk ramdisk.img --base 0x80000000 --cmdline "" --board omap5 -o boot.img
+sudo ./usbboot -f
+sudo ./fastboot.sh
+
+
+AD-HOC testing
+==================
+start "wpa_supplicant:-c/data/misc/wifi/wpa_supplicant.conf"
+
+add_network 0
+set_network 0 ssid "test123"
+set_network 0 mode 1
+set_network 0 frequency 2412
+set_network 0 key_mgmt NONE
+enable_network 0
+
+add_network 0
+set_network 0 wep_key0 1234567890
+set_network 0 key_mgmt NONE
+set_network 0 mode 1
+set_network 0 frequency 2412
+set_network 0 ssid "test456"
+enable_network 0
+
+add_network 0
+set_network 0 ssid "test789"
+set_network 0 mode 1
+set_network 0 frequency 2412
+set_network 0 key_mgmt NONE
+enable_network 0
+
+Enterprise security:
+=====================
+1. open 192.168.0.99/t/ in browser
+2. go to certifcates folder
+3. Download certificate
+
+It will try to install and ask for password type "test" and give some name to it.
+
+Now connect to the wcg_linksys_n AP in security
+
+Select EAP method as TLS.
+Select User certifcate as the one we installed
+Userid: 8021xuser@wcgwifilabs.local
+Password: Radius01
+
+Note: click on the input test box
+and on console use the command "input text <sample>"
+
+For externalhotspot84 enterprise security
+--------------------------------------------
+id:
+input text x0125717w
+password:
+input text NqHe5kGyIt
+
+To hold dummy wake lock
+-----------------------
+echo lock > /sys/power/wake_lock
+
+To see who holds the wake-lock
+------------------------------
+cat /sys/power/wake_lock
+
+To test power management (to verify the device off count)
+cat /d/pm_debug/count
+Look for RET in l4per_pwrdm (ON),OFF:0,RET:XX,
+
+How to download/upload wilink8 firmware
+=======================================
+1) Command to clone the tree
+git clone ssh://x0099046@android.dal.design.ti.com:29418/connectivity/wilink_fw.git
+
+2) Command to push a patch for review:
+git push ssh://x0099046@android.dal.design.ti.com:29418/connectivity/wilink_fw.git HEAD:refs/for/ics-mr1
+
+Kernel 3.4 porting
+======================
+mkdir data
+cp *.ko data/
+./make_ext4fs -s -l 512MB -a data userdata.img wifi/
+./mkbootimg --kernel zImage --ramdisk minimalFS.img --cmdline "" --board omap5 --base 0x80000000 -o boot.img
+sudo ./usbboot -f
+sh fastboot.sh
+sudo ./fastboot flash userdata userdata.img
+
+mkdir data
+mount -t ext4 /dev/mmcblk0p10 /data
+cp /data/iw /bin; chmod 777 /bin/iw
+
+insmod /data/compat.ko
+insmod /data/cfg80211.ko
+insmod /data/mac80211.ko
+insmod /data/wlcore.ko debug_level=0x63c00
+insmod /data/wl18xx.ko
+
+mount -t debugfs none /sys/kernel/debug
+echo -n 'module wlcore +p' > /sys/kernel/debug/dynamic_debug/control 
+echo -n 'module wl18xx +p' > /sys/kernel/debug/dynamic_debug/control 
+echo -n 'module mac80211 +p' > /sys/kernel/debug/dynamic_debug/control
+echo -n 'module cfg80211 +p' > /sys/kernel/debug/dynamic_debug/control 
+echo "0x63c00" > /sys/module/wlcore/parameters/debug_level 
+echo 8 > /proc/sys/kernel/printk
+cat /proc/kmsg &
+wpa_cli log_level 0xFFFF
+
+insmod /data/wlcore_sdio.ko &
+
+cd /sys/devices/platform/omap_hsmmc.2/mmc_host/mmc2/mmc2:0001/mmc2:0001:2/wl18xx/firmware/wl18xx/
+echo 1 > loading
+cat /data/wl1271-nvs.bin > data
+echo 0 > loading
+
+ifconfig wlan0 192.168.0.220 up &
+
+cd /sys/devices/platform/omap_hsmmc.2/mmc_host/mmc2/mmc2:0001/mmc2:0001:2/wl18xx/firmware/wl18xx/
+echo 1 > loading
+cat /data/wl18xx-fw.bin > data
+echo 0 > loading
+
+iw wlan0 scan | grep SSID
+
+
+FTRACE debugging:
+Compile kernel with CONFIG_FUNCTION_TRACER
+mount -t debugfs none /sys/kernel/debug
+cd /sys/kernel/debug/tracing
+#cat available_filter_functions
+echo ieee80211* wl12* wl18* wlcore* mac* cfg* > set_ftrace_filter
+echo function_graph > current_tracer
+echo 2048 > buffer_size_kb
+echo 0 > trace
+cat trace
+
+
+IPV6 TEST SETUP:
+                                 Ethernet                                    Wireless
+                  My PC    <==================>    Netgear WNDR3800          ((( . )))      Blaze Tablet
+2001:1000:1000:1000:1000:1000:1000:2     2001:1000:1000:1000:1000:1000:1000:10     2001:1000:1000:1000:1000:1000:1000:5
+
+Steps for the setup:
+1. Assign IPv6 address for the ethernet interface on a Linux PC. ( Edit the eth0 settings using nm-applet)
+2. Open the browser interface of Netgear WNDR3800.
+   -  Click on Advanced Options tab
+   -  Click on Advanced Setup tab
+   -  Click on IPv6 option
+   -  In the LAN Setup section
+         Select Auto Config under IP Address Assignment sub section
+         Assign IPv6 Address/Prefix Length as 2001:1000:1000:1000:1000:1000:1000:10
+3. Connect to the Netgear WNDR3800 AP from the UI on Tablet.
+4. Assign IPv6 address to the WLAN interface
+   ip -6 addr add 2001:1000:1000:1000:1000:1000:1000:5 dev wlan0
+   To check the assigned ip address
+   ip -6 addr show dev wlan0
+5. Copy ping6 binary to the filesystem ( Source : external/ping6 dir of the ICS repo)
+6. Ping to the AP (Netgear WNDR3800 ) and Linux PC using ping6.
+   ping6  2001:1000:1000:1000:1000:1000:1000:10
+   ping6  2001:1000:1000:1000:1000:1000:1000:2
+7. Open the browser and type http://[2001:1000:1000:1000:1000:1000:1000:10] to access home of the browser.
+
+Porting TI-OpenLink drivers
+1) WL18XX
+git clone git://github.com/TI-OpenLink/wl18xx.git
+git checkout origin/master -b master
+git reset --hard ol_r8.a1.06
+2) wpa_supplicant_8
+git clone git://github.com/TI-OpenLink/hostap.git
+git checkout ti_wcs/upstream-android -b upstream-android
+git reset --hard ol_r8.a1.06
+3) Compat
+git clone git://github.com/TI-OpenLink/compat.git
+cd compat
+git checkout ol_r8.a1.06
+cd ..
+4) Compat-Wireless
+git clone git://github.com/TI-OpenLink/compat-wireless.git
+cd compat-wireless
+git checkout ol_r8.a1.06 -b wlcore
+cd ..
+5) Compat Generation
+pushd compat-wireless
+export ARCH=arm
+export GIT_TREE=wl18xx  //make sure to give absolute path
+export GIT_COMPAT_TREE=compat
+export KERNEL_DIR=kernel/p-android-omap-3.0
+sh ./scripts/admin-refresh.sh
+./scripts/driver-select wl_ti
+
+Procedure to flash Blaze board (3 COM port):
+First Boot in SD card mode: (Dip switches 1 and 3 should go down)
+Enter into fastboot mode
+./fastboot oem format
+./fastboot flash xloader  Blaze_OMAP4430_GP_ES2.1_MLO
+./fastboot flash bootloader u-boot.bin
+Now change the DIP switches back and remove the SD card, reboot and enter the fastboot mode
+./fastboot.sh
+
+root@android:/system/lib/modules # cat /proc/version
+Linux version 3.0.21-00003-OMAP-Android+ (x0099046local@udx0099046) (gcc version 4.4.1 (Sourcery G++ Lite 2010q1-202) ) #1 SMP PREEMPT Mon Jun 11 15:42:08 CDT 2012
+root@android:/system/lib/modules #
+
+# CCACHE settings for building Android FS faster
+export USE_CCACHE=1
+# To be run only once for a PC
+prebuilt/linux-x86/ccache/ccache -M 50G
+
+# CCACHE settings for building Kernel faster
+make -j2 ARCH=arm CROSS_COMPILE="ccache arm-none-linux-gnueabi-" uImage
+
+Cscope Setup for WLAN Source Code
+#export WLAN_SRC=/home/x0099046local/src/wlan
+export WLAN_SRC=/home/x0099046local/src/ics_latest/hardware/ti/wlan/mac80211/compat_wl18xx
+export SUPPLICANT_SRC=/home/x0099046local/src/ics_latest/external/wpa_supplicant_8
+
+rm ~/prdp_cscope.files
+
+find $WLAN_SRC/ -name "*.cpp" -o -name "*.c" -o -name "*.h" > ~/prdp_cscope.files
+find $SUPPLICANT_SRC/ -name "*.cpp" -o -name "*.c" -o -name "*.h" >> ~/prdp_cscope.files
+
+ctags -L ~/prdp_cscope.files
+cscope -i ~/prdp_cscope.files
+
+How to build/load modules for an existing kernel (without rebuilding kernel)
+Comment out the the following lines
+# Read KERNELRELEASE from include/config/kernel.release (if it exists)
+#KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
+#KERNELVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
+# This Kernel Release info is obtained from either /proc/version or printed at the beginning of the kernel boot up
+KERNELRELEASE = 3.0.21-00003-OMAP-Android+
+KERNELVERSION = 3.0.21-00003-OMAP-Android+
