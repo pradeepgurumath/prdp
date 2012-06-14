@@ -1063,3 +1063,32 @@ git remote add origin https://github.com/pradeepgurumath/prdp.git
 
 How to update an existing file to a remote git tree
 git push -u origin master
+
+WAPI testing:
+==============
+1. connect to wapi_open AP.
+2. open 192.168.0.99/t/ in browser
+3. go to certifcates folder
+4. Download certificates (files go to /data/media/Download wapi_root.cer wapi_user.cer)
+
+for WAPI PSK
+------------
+add_network
+set_network 0 ssid "wapi_psk"
+set_network 0 wapi_psk "psk12345"
+enable_network 0
+
+disable_network 0
+remove_network 0
+
+for WAPI CERT
+-------------
+add_network
+set_network 0 ssid "wapi_cer"
+set_network 0 wapi_cert "1"
+set_network 0 wapi_user_cert "/data/media/Download/wapi_user.cer"
+set_network 0 wapi_root_cert "/data/media/Download/wapi_root.cer"
+enable_network 0
+
+disable_network 0
+remove_network 0
