@@ -1095,3 +1095,9 @@ remove_network 0
 
 How to send patches to open-source using git send-mail
 git send-email --confirm=always --suppress-cc=all --annotate --from "Pradeep Gurumath <pradeepgurumath@ti.com>" --to "<mcs-mac80211@list.ti.com>" --cc "<coelho@ti.com>" --cc "<vishalm@ti.com>" --cc "<yair.shapira@ti.com>"
+
+How to clean and build individual components from Android File System
+. ./build/envsetup.sh
+lunch
+make -j2 clean-wpa_cli
+make -j2 wpa_cli
