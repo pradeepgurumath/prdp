@@ -897,8 +897,13 @@ git clone ssh://x0099046@android.dal.design.ti.com:29418/connectivity/wilink_fw.
 2) Command to push a patch for review:
 git push ssh://x0099046@android.dal.design.ti.com:29418/connectivity/wilink_fw.git HEAD:refs/for/ics-mr1
 
-Kernel 3.4 porting
-======================
+Kernel 3.4 porting using busybox file system
+============================================
+Ensure kernel is built with following
++CONFIG_EFI_PARTITION=y
++CONFIG_MMC_BLOCK_MINORS=12
++CONFIG_EXT4_FS=y
+
 mkdir data
 cp *.ko data/
 ./make_ext4fs -s -l 512MB -a data userdata.img wifi/
