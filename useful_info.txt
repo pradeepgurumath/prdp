@@ -904,9 +904,17 @@ Ensure kernel is built with following
 +CONFIG_MMC_BLOCK_MINORS=12
 +CONFIG_EXT4_FS=y
 
+rm zImage boot.img userdata.img data/*.ko
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/net/mac80211/mac80211.ko /home/x0099046local/db/k3.4/data/.
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/net/wireless/cfg80211.ko /home/x0099046local/db/k3.4/data/.
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/compat/compat.ko /home/x0099046local/db/k3.4/data/.
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/drivers/net/wireless/ti/wl18xx/wl18xx.ko /home/x0099046local/db/k3.4/data/.
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/drivers/net/wireless/ti/wlcore/wlcore_sdio.ko /home/x0099046local/db/k3.4/data/.
+cp /home/x0099046local/src/mainline/ics/hardware/ti/wlan/mac80211/compat_wl18xx/drivers/net/wireless/ti/wlcore/wlcore.ko /home/x0099046local/db/k3.4/data/.
+
 mkdir data
 cp *.ko data/
-./make_ext4fs -s -l 512MB -a data userdata.img wifi/
+./make_ext4fs -s -l 512MB -a data userdata.img data/
 ./mkbootimg --kernel zImage --ramdisk minimalFS.img --cmdline "" --board omap5 --base 0x80000000 -o boot.img
 sudo ./usbboot -f
 sh fastboot.sh
@@ -933,14 +941,14 @@ cat /proc/kmsg &
 wpa_cli log_level 0xFFFF
 
 insmod /data/wlcore_sdio.ko &
-
+sleep 1
 cd /sys/devices/platform/omap_hsmmc.2/mmc_host/mmc2/mmc2:0001/mmc2:0001:2/wl18xx/firmware/wl18xx/
 echo 1 > loading
 cat /data/wl1271-nvs.bin > data
 echo 0 > loading
-
+sleep 1
 ifconfig wlan0 192.168.0.220 up &
-
+sleep 1
 cd /sys/devices/platform/omap_hsmmc.2/mmc_host/mmc2/mmc2:0001/mmc2:0001:2/wl18xx/firmware/wl18xx/
 echo 1 > loading
 cat /data/wl18xx-fw.bin > data
@@ -948,6 +956,19 @@ echo 0 > loading
 
 iw wlan0 scan | grep SSID
 
+To force device to suspend
+iw phy0 wowlan show
+iw phy0 wowlan enable any
+echo enabled > /sys/devices/platform/omap_uart.2/tty/ttyO2/power/wakeup
+echo mem > /sys/power/state
+cat /debug/pm_debug/count
+
+To enable kernel debug prints during suspend
+echo 1 >  /sys/module/printk/parameters/console_suspend
+echo 0 >  /sys/module/printk/parameters/console_suspend
+
+mount -t debugfs none /sys/kernel/debug
+cat /sys/kernel/debug/mmc2/regs
 
 FTRACE debugging:
 Compile kernel with CONFIG_FUNCTION_TRACER
@@ -1034,7 +1055,7 @@ export USE_CCACHE=1
 prebuilt/linux-x86/ccache/ccache -M 50G
 
 # CCACHE settings for building Kernel faster
-make -j2 ARCH=arm CROSS_COMPILE="ccache arm-none-linux-gnueabi-" uImage
+make ARCH=arm CROSS_COMPILE="ccache arm-eabi-" uImage
 
 Cscope Setup for WLAN Source Code
 #export WLAN_SRC=/home/x0099046local/src/wlan
@@ -1106,3 +1127,7 @@ How to clean and build individual components from Android File System
 lunch
 make -j2 clean-wpa_cli
 make -j2 wpa_cli
+
+To force device to suspend
+echo mem > /sys/power/state
+cat /debug/pm_debug/count
