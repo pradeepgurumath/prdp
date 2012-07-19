@@ -923,6 +923,7 @@ sudo ./fastboot flash userdata userdata.img
 mkdir data
 mount -t ext4 /dev/mmcblk0p10 /data
 cp /data/iw /bin; chmod 777 /bin/iw
+cp /data/omapconf /bin; chmod 777 /bin/omapconf
 
 insmod /data/compat.ko
 insmod /data/cfg80211.ko
@@ -955,6 +956,8 @@ cat /data/wl18xx-fw.bin > data
 echo 0 > loading
 
 iw wlan0 scan | grep SSID
+
+iw wlan0 connect -w CiscoN
 
 To force device to suspend
 iw phy0 wowlan show
@@ -1163,3 +1166,6 @@ make -j2 wpa_cli
 To force device to suspend
 echo mem > /sys/power/state
 cat /debug/pm_debug/count
+
+How to push changes to remote master
+git push -u origin master
