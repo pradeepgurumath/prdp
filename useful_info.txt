@@ -962,6 +962,16 @@ iw phy0 wowlan enable any
 echo enabled > /sys/devices/platform/omap_uart.2/tty/ttyO2/power/wakeup
 echo mem > /sys/power/state
 cat /debug/pm_debug/count
+cat /d/pm_debug/count
+
+echo temp > /sys/power/wake_unlock
+cat /d/pm_debug/count
+ping -c 3 192.168.0.3
+
+Setting WLAN IRQ WAKEUP_ENABLE using omapconf
+omapconf read 0x4AE0C85C
+omapconf write 0x4AE0C85C <value by setting 31st bit from last read>
+omapconf write 0x4AE0C85C 0x41060000
 
 To enable kernel debug prints during suspend
 echo 1 >  /sys/module/printk/parameters/console_suspend
@@ -980,6 +990,28 @@ echo function_graph > current_tracer
 echo 2048 > buffer_size_kb
 echo 0 > trace
 cat trace
+
+adb root
+adb remount
+adb -d shell rm /system/lib/modules/wl*.ko /system/lib/modules/mac80211.ko /system/lib/modules/cfg80211.ko /system/lib/modules/compat.ko
+adb push ./net/mac80211/mac80211.ko /system/lib/modules/.
+adb push ./net/wireless/cfg80211.ko /system/lib/modules/.
+adb push ./compat/compat.ko /system/lib/modules/.
+adb push ./drivers/net/wireless/ti/wl18xx/wl18xx.ko /system/lib/modules/.
+adb push ./drivers/net/wireless/ti/wlcore/wlcore_sdio.ko /system/lib/modules/.
+adb push ./drivers/net/wireless/ti/wlcore/wlcore.ko /system/lib/modules/.
+
+insmod /system/lib/modules/wlcore_sdio.ko
+ifconfig wlan0 192.168.0.220 up
+iw wlan0 connect -w CiscoN
+ping 192.168.0.3
+echo temp > /sys/power/wake_unlock
+cat /d/pm_debug/count
+ping -c 3 192.168.0.3
+
+To disable Ethernet from kernel configuration
+-CONFIG_USB_EHCI_HCD=y
+-CONFIG_USB_NET_SMSC95XX=y
 
 
 IPV6 TEST SETUP:
