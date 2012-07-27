@@ -959,6 +959,8 @@ iw wlan0 scan | grep SSID
 
 iw wlan0 connect -w CiscoN
 
+ping -c 3 192.168.0.3
+
 To force device to suspend
 iw phy0 wowlan show
 iw phy0 wowlan enable any
@@ -970,6 +972,16 @@ cat /d/pm_debug/count
 echo temp > /sys/power/wake_unlock
 cat /d/pm_debug/count
 ping -c 3 192.168.0.3
+omapconf read 0x4AE0C85C
+omapconf write 0x4AE0C85C 0x41060000
+
+omapconf write 0x4AE0C85C 0x411E0000
+omapconf write 0x4AE0C85C 0x01060000
+
+omapconf read 0x4AE07838
+00000001
+
+echo 0 > /d/pm_debug/enable_off_mode
 
 Setting WLAN IRQ WAKEUP_ENABLE using omapconf
 omapconf read 0x4AE0C85C
