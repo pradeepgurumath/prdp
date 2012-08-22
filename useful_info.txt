@@ -876,11 +876,9 @@ and on console use the command "input text <sample>"
 
 For externalhotspot84 enterprise security
 --------------------------------------------
-id:
-input text x0125717w
-password:
-input text NqHe5kGyIt
-
+input text a0271468w
+input text H5swVUz6w6
+	
 To hold dummy wake lock
 -----------------------
 echo lock > /sys/power/wake_lock
@@ -979,8 +977,10 @@ echo -1 > /sys/devices/platform/omap_uart.4/power/autosuspend_delay_ms
 
 echo temp > /sys/power/wake_unlock
 cat /d/pm_debug/count
+
 ping -c 3 192.168.0.3
 omapconf read 0x4AE0C85C
+cat /d/pm_debug/count
 
 omapconf write 0x4AE0C85C 0x41060000
 
@@ -991,6 +991,10 @@ omapconf read 0x4AE07838
 00000001
 
 echo 0 > /d/pm_debug/enable_off_mode
+
+ANDROID KEY-EVENTS
+Screen unlock or menu key
+input keyevent 82
 
 Setting WLAN IRQ WAKEUP_ENABLE using omapconf
 omapconf read 0x4AE0C85C
@@ -1062,6 +1066,7 @@ Steps for the setup:
    ping6  2001:1000:1000:1000:1000:1000:1000:10
    ping6  2001:1000:1000:1000:1000:1000:1000:2
 7. Open the browser and type http://[2001:1000:1000:1000:1000:1000:1000:10] to access home of the browser.
+am start -a android.intent.action.VIEW -d http://[2001:1000:1000:1000:1000:1000:1000:10]
 
 Porting TI-OpenLink drivers
 1) WL18XX
@@ -1194,3 +1199,48 @@ git push -u origin master
 
 How to open android web browser from command line:
 am start -a android.intent.action.VIEW -d http://192.168.0.99
+
+Log the Network traffic using TCPDUMP
+tcpdump -s0 -i wlan0 -w /sdcard/sinkcapture.pcap &
+
+Taking important register dump for debugging power management:
+	---
+	arch/arm/mach-omap2/pm4xxx_5xxx.c |   12 ++++++++++++
+	1 files changed, 12 insertions(+), 0 deletions(-)
+	
+	diff --git a/arch/arm/mach-omap2/pm4xxx_5xxx.c b/arch/arm/mach-omap2/pm4xxx_5xxx.c
+	index 1ff4681..ce05245 100644
+	--- a/arch/arm/mach-omap2/pm4xxx_5xxx.c
+	+++ b/arch/arm/mach-omap2/pm4xxx_5xxx.c
+	@@ -22,6 +22,7 @@
+	
+	#include <plat/omap_device.h>
+	#include <plat/dvfs.h>
+	+#include <plat/usb.h>
+	
+	#include <mach/ctrl_module_wkup_44xx.h>
+	#include <mach/hardware.h>
+	@@ -132,6 +133,17 @@ static int omap4_5_pm_suspend(void)
+		omap_enter_lowpower(cpu_id, PWRDM_POWER_OFF);
+		prcmdebug_dump(PRCMDEBUG_LASTSLEEP);
+	
+	+	printk("CM_WKUPAON_CLKSTCTRL 0x%x\n", omap_readl(0x4AE07800));
+	+	printk("CM_WKUPAON_L4_WKUP_CLKCTRL 0x%x\n", omap_readl(0x4AE07820));
+	+	printk("CM_WKUPAON_WD_TIMER2_CLKCTRL 0x%x\n", omap_readl(0x4AE07830));
+	+	printk("CM_WKUPAON_GPIO1_CLKCTRL 0x%x\n", omap_readl(0x4AE07838));
+	+	printk("CM_WKUPAON_TIMER1_CLKCTRL 0x%x\n", omap_readl(0x4AE07840));
+	+	printk("CM_WKUPAON_COUNTER_32K_CLKCTRL 0x%x\n", omap_readl(0x4AE07850));
+	+	printk("CM_WKUPAON_SAR_RAM_CLKCTRL 0x%x\n", omap_readl(0x4AE07860));
+	+	printk("CM_WKUPAON_KBD_CLKCTRL 0x%x\n", omap_readl(0x4AE07878));
+	+	printk("CM_WKUPAON_SCRM_CLKCTRL 0x%x\n", omap_readl(0x4AE07890));
+	+	printk("CM_WKUPAON_IO_SRCOMP_CLKCTRL 0x%x\n", omap_readl(0x4AE07898));
+	+
+		/* Restore next powerdomain state */
+		list_for_each_entry(pwrst, &pwrst_list, node) {
+			prev_state = pwrdm_read_prev_pwrst(pwrst->pwrdm);
+	-- 
+	1.7.4.1
+
+
+How to force WiFi Chip recovery
+echo 1 > /d/ieee80211/phyX/wlcore/start_recovery
