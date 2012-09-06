@@ -1001,6 +1001,24 @@ omapconf read 0x4AE0C85C
 omapconf write 0x4AE0C85C <value by setting 31st bit from last read>
 omapconf write 0x4AE0C85C 0x41060000
 
+POWER MANAGEMENT:
+==================
+mkdir /data/vis
+mount -t debugfs debugfs /data/vis
+cat /data/vis/pm_debug/count
+cat /sys/power/wake_lock
+
+to check current frequency:
+cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
+
+cat /sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_cur_freq
+
+cat /sys/devices/system/cpu/cpu0/online
+cat /sys/devices/system/cpu/cpu1/online
+
+echo 1 > /sys/devices/system/cpu/cpu1/online
+echo 0 > /sys/devices/system/cpu/cpu1/online
+
 To enable kernel debug prints during suspend
 echo 1 >  /sys/module/printk/parameters/console_suspend
 echo 0 >  /sys/module/printk/parameters/console_suspend
@@ -1244,3 +1262,51 @@ Taking important register dump for debugging power management:
 
 How to force WiFi Chip recovery
 echo 1 > /d/ieee80211/phyX/wlcore/start_recovery
+
+Successful Tethering connection:
+shell@android:/ # ip route
+default via 192.168.0.200 dev eth0  metric 202
+128.247.76.0/23 dev eth0  proto kernel  scope link  src 128.247.77.61
+192.168.0.0/24 dev eth0  proto kernel  scope link  src 192.168.0.199  metric 202
+192.168.43.0/24 dev wlan1  proto kernel  scope link  src 192.168.43.1
+shell@android:/ #
+2|shell@android:/ # iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+           all  --  anywhere             anywhere             ! quota globalAlert: 2097152 bytes
+ACCEPT     all  --  anywhere             anywhere
+           all  --  anywhere             anywhere             owner socket exists
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+           all  --  anywhere             anywhere             ! quota globalAlert: 2097152 bytes
+ACCEPT     all  --  anywhere             anywhere             state RELATED,ESTABLISHED
+DROP       all  --  anywhere             anywhere             state INVALID
+ACCEPT     all  --  anywhere             anywhere
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+           all  --  anywhere             anywhere             ! quota globalAlert: 2097152 bytes
+ACCEPT     all  --  anywhere             anywhere
+           all  --  anywhere             anywhere             owner socket exists
+
+Chain costly_shared (0 references)
+target     prot opt source               destination
+penalty_box  all  --  anywhere             anywhere
+           all  --  anywhere             anywhere             owner socket exists
+ACCEPT     all  --  anywhere             anywhere
+
+Chain penalty_box (1 references)
+target     prot opt source               destination
+shell@android:/ #
+
+PTL Script Commands:
+/ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d key=abcdefgh1234 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+/ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+
+./data/ptl/bin/ptl -f /sdcard/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=dlink_wcg -d key=abcdefgh1234 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
