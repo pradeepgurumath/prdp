@@ -1301,12 +1301,17 @@ target     prot opt source               destination
 shell@android:/ #
 
 PTL Script Commands:
+adb root
+adb remount
+adb shell /data/ptl/bin/boot.sh
+adb shell /data/ptl/bin/setProperty android.pastry icecream
+
 /ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 /ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 ./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 ./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 ./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d key=abcdefgh1234 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 ./data/ptl/bin/ptl -f ./data/media/android_scripts/Android_Eclair_WLAN_UI_Connect_Disconnect.ptl -d ssid=dlink_wcg -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
-/ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
+./ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=Automation_Dont_Connect -d key=spunky666 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 
 ./data/ptl/bin/ptl -f /sdcard/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=dlink_wcg -d key=abcdefgh1234 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
