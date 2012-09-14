@@ -978,7 +978,7 @@ echo -1 > /sys/devices/platform/omap_uart.4/power/autosuspend_delay_ms
 echo temp > /sys/power/wake_unlock
 cat /d/pm_debug/count
 
-ping -c 3 192.168.0.3
+ping -c 3 192.168.0.5
 omapconf read 0x4AE0C85C
 cat /d/pm_debug/count
 
@@ -1035,6 +1035,7 @@ echo ieee80211* wl12* wl18* wlcore* mac* cfg* > set_ftrace_filter
 echo function_graph > current_tracer
 echo 2048 > buffer_size_kb
 echo 0 > trace
+<<Perform the commands for which log is needed>>
 cat trace
 
 adb root
@@ -1093,7 +1094,7 @@ git checkout origin/master -b master
 git reset --hard ol_r8.a1.06
 2) wpa_supplicant_8
 git clone git://github.com/TI-OpenLink/hostap.git
-git checkout ti_wcs/upstream-android -b upstream-android
+git checkout --track -b upstream-android origin/upstream-android
 git reset --hard ol_r8.a1.06
 3) 18xx-ti-utils
 git clone git://github.com/TI-OpenLink/18xx-ti-utils.git
@@ -1105,6 +1106,12 @@ git clone git://github.com/TI-OpenLink/compat.git
 cd compat
 git checkout ol_r8.a1.06
 cd ..
+
+If MCP compat doesn't work:
+git clone git://github.com/mcgrof/compat.git
+cd compat
+branch: master
+
 5) Compat-Wireless
 git clone git://github.com/TI-OpenLink/compat-wireless.git
 cd compat-wireless
