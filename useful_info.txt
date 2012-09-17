@@ -1338,3 +1338,13 @@ QoS tests:
 - Iperf TX from board -S224
 - Last 3 bits in the QoS Control Field are 110/111.
 - The words "Voice" are attached to "QoS Control Field"
+
+
+Generation of wl18xx-conf.bin:
+	wlconf -I ./official_inis/WL8_System_parameters_PG2_RDL_2_4_SP_SISO.ini   ( it generated wl18xx-conf.bin)
+	wlconf -s wl18xx.ht.mode=0x01 -i ./wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+	wlconf -s wl18xx.phy.board_type=0x04 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+Changing the number of antennae to 2 (for MIMO)
+	wlconf -s wl18xx.phy.number_of_assembled_ant2_4=0x02 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+To print all the parameters taken by wlconf.bin
+	wlconf -g -i ./wl18xx-conf.bin
