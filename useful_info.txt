@@ -16,6 +16,8 @@ repo sync
 
 Getting Public Jelly Bean
 =========================
+repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-dev
+(old)
 repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-release
 
 ICE BUILD
@@ -136,6 +138,9 @@ git push ssh://pradeepgurumath@android2.dal.design.ti.com:29428/platform/hardwar
 git push ssh://x0099046@android2.dal.design.ti.com:29428/platform/hardware/ti/wlan.git -v HEAD:refs/for/mwc-omap5-ics-mr1
 
 R8 package commands:
+For JB release
+git push ssh://pradeepgurumath@review.omapzoom.org:29418/platform/hardware/ti/wlan.git -v HEAD:refs/for/d-jb-release
+
 git push ssh://pradeepgurumath@review.omapzoom.org:29418/platform/hardware/ti/wlan.git -v HEAD:refs/for/p-ics-mr1
 git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/blaze.git -v HEAD:refs/for/ics-mr1
 git push ssh://pradeepgurumath@review.omapzoom.org:29418/device/ti/blaze_tablet.git -v HEAD:refs/for/ics-mr1
@@ -1125,6 +1130,11 @@ export GIT_COMPAT_TREE=compat
 export KERNEL_DIR=kernel/p-android-omap-3.0
 sh ./scripts/admin-refresh.sh
 ./scripts/driver-select wl_ti
+7) WAPI patches
+git clone git://gitorious.tif.ti.com/ti-openlink/wapi-patches.git
+
+Link to OMAP4 WAPI patches:
+https://android.dal.design.ti.com/gitweb?p=connectivity/wilink_fw.git;a=tree;f=wapi;h=48c57dfc637295033090cc2812686bae2cd0f7cf;hb=refs/heads/jb-release
 
 Procedure to flash Blaze board (3 COM port):
 First Boot in SD card mode: (Dip switches 1 and 3 should go down)
@@ -1348,3 +1358,27 @@ Changing the number of antennae to 2 (for MIMO)
 	wlconf -s wl18xx.phy.number_of_assembled_ant2_4=0x02 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
 To print all the parameters taken by wlconf.bin
 	wlconf -g -i ./wl18xx-conf.bin
+
+To upload repo changes:
+1) cd hardware/ti/wlan/mac80211/compat_wl18xx
+2) repo start temp_branch_name	.
+3) make the changes
+4) repo upload .
+
+insmod /system/lib/modules/compat.ko
+insmod /system/lib/modules/cfg80211.ko
+insmod /system/lib/modules/mac80211.ko
+insmod /system/lib/modules/wlcore.ko
+insmod /system/lib/modules/wl18xx.ko
+
+
+Input tap (to change UI settings using screen co-ordinates)
+1) Go to Settings page: am start -a android.settings.SETTINGS
+2) WiFi ON/OFF: input tap 520 250
+3) BT ON/OFF: input tap 520 360
+4) Go to AirPlane mode settings page: am start -a android.settings.AIRPLANE_MODE_SETTINGS
+5) To Go to HotSpot settings page: input tap 280 460
+6) Turn ON/OFF HotSpot: input tap 615 350
+
+Capturing HTTP RX TP:
+am start -a android.intent.action.VIEW -d http://192.168.0.9/download_test/newhttptp/newhttptp.html
