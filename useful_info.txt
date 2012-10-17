@@ -180,9 +180,11 @@ SED command for correcting the patches
 ======================================
 find . -name *.patch | xargs sed -i 's/a\//a\/mac80211\/compat\//'
 find . -name *.patch | xargs sed -i 's/b\//b\/mac80211\/compat\//'
-
+OR
 ls | xargs sed -i 's/a\//a\/mac80211\/compat_wl18xx\//'
 ls | xargs sed -i 's/b\//b\/mac80211\/compat_wl18xx\//'
+OR
+git am --directory=mac80211/compat_wl18xx ~/share/wl18xx_diff_r8_a4_03_to_a4_02/*
 
 MAC802.11 build
 ================
@@ -883,6 +885,39 @@ For externalhotspot84 enterprise security
 --------------------------------------------
 input text a0271468w
 input text H5swVUz6w6
+
+To connect to ExternalHotspot using command line
+------------------------------------------------
+wpa_cli -iwlan0 add_network
+wpa_cli -iwlan0 set_network 0 ssid '"externalhotspot84"'
+wpa_cli -iwlan0 set_network 0 auth_alg OPEN
+wpa_cli -iwlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -iwlan0 set_network 0 pairwise CCMP
+wpa_cli -iwlan0 set_network 0 group CCMP
+wpa_cli -iwlan0 set_network 0 proto WPA2
+wpa_cli -iwlan0 set_network 0 eap PEAP
+wpa_cli -iwlan0 set_network 0 identity '"x0125717w"'
+wpa_cli -iwlan0 set_network 0 password '"NqHe5kGyIt"'
+wpa_cli -iwlan0 set_network 0 phase1 '"peapver=0"'
+wpa_cli -iwlan0 set_network 0 phase2 '"MSCHAPV2"'
+wpa_cli -iwlan0 set_network 0 mode 0
+wpa_cli -iwlan0 select_network 0
+
+or we can add the following in .conf
+
+network={
+        ssid="externalhotspot84"
+        proto=RSN
+        key_mgmt=WPA-EAP
+        pairwise=CCMP
+        group=CCMP
+        auth_alg=OPEN
+        eap=PEAP
+        identity="x0125717w"
+        password="NqHe5kGyIt"
+        phase1="peapver=0"
+        phase2="MSCHAPV2"
+}
 	
 To hold dummy wake lock
 -----------------------
@@ -1117,6 +1152,12 @@ git clone git://github.com/mcgrof/compat.git
 cd compat
 branch: master
 
+New procedure to download wpa_supplicant_8_ti
+cd mydroid/external/wpa_supplicant_8_ti
+git remote add mcs-hostap git://github.com/TI-OpenLink/hostap.git
+git fetch mcs-hostap
+git merge ol_r8.a4.04
+
 5) Compat-Wireless
 git clone git://github.com/TI-OpenLink/compat-wireless.git
 cd compat-wireless
@@ -1333,6 +1374,36 @@ adb shell /data/ptl/bin/setProperty android.pastry icecream
 
 ./data/ptl/bin/ptl -f /sdcard/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=dlink_wcg -d key=abcdefgh1234 -d auth="AUTHENTICATION_WPA2" -d enc="ENCRYPTION_AES" -d numIterations=1000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 
+/ptl/bin/ptl -f /ptl/scripts/Cross_OS_AV_Playback_Play_3files.ptl -d fileName1="http://192.168.1.109/stream/AV_Brave_1080p_60fps_H264_ACC_LC_15mbps_BaseProfile.mp4" -d fileName2="http://192.168.1.109/stream/AV_TheAvengers_1080p_60fps_H264_ACC_LC_20mbps_HighProfile.mp4" -d fileName3="http://192.168.1.109/stream/AV_Titans_1080p_60fps_H264_ACC_LC_20mbps_MainProfile.mp4" -d durationInSeconds=10 -d numIterations=1000 -d TCid=L_SC615_00006_R_
+
+http://192.168.1.109/Streaming/MPEG4/AV_000381_MPEG4_Visual_Simple_Profile_Level_4A_VGA_30fps_4Mbps_AAC_48kHz_128kbps_stereo.mp4
+http://192.168.1.109/Streaming/MPEG4/AV_000460_MPEG4_SP_720p_30fps_8Mbps_AAC_44khz_128kbps.mp4
+http://192.168.1.109/Streaming/MPEG4/AV_000588_Public_MPEG4_CIF_30fps_384kbps_AAC_48Khz_128kbps.MP4
+http://192.168.1.109/Streaming/MPEG4/AV_000942_elephants_dream_section1_1080p_mpeg4_asp_24fps_nogmc_bf3_aac_lc.mp4
+
+PTL tests for JellyBean
+From host:
+./busybox_installer.sh
+extract the SDCard_Structure_sarav.zip file
+adb push SDCard_Structure/ /sdcard/.
+
+device prompt:
+/system/xbin/su
+cd /storage/sdcard0/
+sh ./install_jb_emmc_sdcard.sh
+cd /data/ptl/bin/
+boot.sh  ---> external sdcard.
+boot_internal.sh  ---> for emmc.
+
+on every reboot:
+/system/xbin/su
+cd /data/ptl/bin/
+/data/ptl/bin/boot_internal.sh
+
+# run the ptl command.
+/ptl/bin/ptl -f /ptl/scripts/Cross_OS_AV_Playback_Play_3files.ptl -d fileName1="http://192.168.0.99/Streaming/ptl/AV_Brave_1080p_60fps_H264_ACC_LC_15mbps_BaseProfile.mp4" -d fileName2="http://192.168.0.99/Streaming/ptl/AV_TheAvengers_1080p_60fps_H264_ACC_LC_20mbps_HighProfile.mp4" -d fileName3="http://192.168.0.99/Streaming/ptl/AV_Titans_1080p_60fps_H264_ACC_LC_20mbps_MainProfile.mp4" -d durationInSeconds=10 -d numIterations=1000 -d TCid=L_SC615_00006_R_
+
+
 QoS tests:
 -	On the AP PC , open an Iperf UDP server on port 6000 , 1Mbps BW for 10 Sec
 -	In the Sniffer capture verify
@@ -1351,14 +1422,31 @@ QoS tests:
 
 
 Generation of wl18xx-conf.bin:
-	wlconf -I ./official_inis/WL8_System_parameters_PG2_RDL_2_4_SP_SISO.ini   ( it generated wl18xx-conf.bin)
-	wlconf -s wl18xx.ht.mode=0x01 -i ./wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+	wlconf -I /system/etc/wifi/WL8_System_parameters_PG2_RDL_2_4_SP_SISO.ini -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+	wlconf -s wl18xx.ht.mode=0x01 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
 	wlconf -s wl18xx.phy.board_type=0x04 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+
+	wlconf -s core.fwlog.mode=0x00 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+	wlconf -s core.fwlog.output=0x01 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+
+To print all the parameters taken by wlconf.bin
+	wlconf -g -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
+
+Generating conf for MIMO
+	wlconf -I /system/etc/wifi/WL8_System_parameters_PG2_RDL_2_4_SP_MIMO.ini -o /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin
+	wlconf -s wl18xx.ht.mode=0x00 -i /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin
+	wlconf -s wl18xx.phy.board_type=0x04 -i /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin
+	wlconf -g -i /system/etc/firmware/ti-connectivity/wl18xx-conf-mimo.bin
+
+Generation of conf for SISO20:
+	wlconf -I /system/etc/wifi/WL8_System_parameters_PG2_RDL_2_4_SP_SISO.ini -o /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin
+	wlconf -s wl18xx.ht.mode=0x02 -i /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin
+	wlconf -s wl18xx.phy.board_type=0x04 -i /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin
+	wlconf -g -i /system/etc/firmware/ti-connectivity/wl18xx-conf-siso20.bin
+
 Changing the number of antennae to 2 (for MIMO)
 	wlconf -s wl18xx.phy.number_of_assembled_ant2_4=0x02 -i /system/etc/firmware/ti-connectivity/wl18xx-conf.bin -o /system/etc/firmware/ti-connectivity/wl18xx-conf.bin
-To print all the parameters taken by wlconf.bin
-	wlconf -g -i ./wl18xx-conf.bin
-
+	
 To upload repo changes:
 1) cd hardware/ti/wlan/mac80211/compat_wl18xx
 2) repo start temp_branch_name	.
@@ -1382,3 +1470,89 @@ Input tap (to change UI settings using screen co-ordinates)
 
 Capturing HTTP RX TP:
 am start -a android.intent.action.VIEW -d http://192.168.0.9/download_test/newhttptp/newhttptp.html
+
+P2P COMMANDS:
+===================
+Procedure to connect p2p on JB using R8 from cli:
+on tablet a:
+    insmod /system/lib/modules/wlcore_sdio.ko
+    iw phy phy0 interface add p2p0 type managed
+    setprop ctl.start "p2p_supplicant"
+    wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_group_add freq=5200
+
+Now you can see a new interface added p2p-p2p0-x
+netcfg
+p2p0     UP                                     0.0.0.0/0   0x00001003 00:18:31:a6:ab:02
+wlan0    UP                                     0.0.0.0/0   0x00001003 00:18:31:a6:ab:01
+p2p-p2p0-0 UP                                     0.0.0.0/0   0x00001043 00:18:31:a6:ab:03
+
+on tablet b:
+    insmod /system/lib/modules/wlcore_sdio.ko
+    iw phy phy0 interface add p2p0 type managed
+    setprop ctl.start "p2p_supplicant"
+    wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_find
+        OK
+        <3>P2P-DEVICE-FOUND 7e:8e:e4:05:f9:12 p2p_dev_addr=00:18:31:a6:ab:03 pri_dev_type=0-00000000-0 name='Blaze' config_methods=09
+    wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_peers
+        00:18:31:a6:ab:02
+    wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_connect 00:18:31:a6:ab:03 pbc join
+	(need to use the mac address of the p2p-p2p0-0 of tablet a on which the group is created)
+    wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 status
+    ifconfig p2p-p2p0-0 192.168.0.2
+
+on tablet a:
+    wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 wps_pbc
+    ifconfig p2p-p2p0-0 192.168.0.1
+
+To check P2P frequency (this works only on the client side, not GO):
+	wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-1 signal_p
+
+To set p2p group to a particular channel
+wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_set listen_channel 1
+
+To Remove Group:
+on tablet a:
+	wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 p2p_group_remove p2p-p2p0-0
+
+Procedure to connect  between tablet and some sink device with only pbc button:
+ON Tablet:
+    insmod /system/lib/modules/wl12xx_sdio.ko
+    iw phy phy0 interface add p2p0 type managed
+    setprop ctl.start "p2p_supplicant"
+
+Device:                Blaze tablet                                                                                                                                   sink
+MAC addr:    7c:8e:e4:25:92:65                                                                                                                00:18:31:a6:b6:01
+P2P-role:                P2P-GO                                                                                                                                 P2P-station
+Commands:
+   1.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_find
+    ( wait until we see the mac address of the sink )
+   2.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_stop
+   3.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_group_add  freq=2412
+   4.                  wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 p2p_invite group=p2p-p2p0-0 peer=00:18:31:a6:b6:01
+   5.                                                                                                                                                                    press the push button ( or wpa_cli wps_pbc)
+   6.                  wpa_cli wps_pbc
+   7.                  wpa_cli status                                                                                                                            wpa_cli status
+   8.                  ifconfig p2p-p2p0-0 192.168.49.1                                                                                             ifconfig wlan0 192.168.49.2
+
+   
+To open a web browser
+am start -a android.intent.action.VIEW -d http://192.168.0.99
+
+
+WiFi Integration Checklist
+Integration:
+Check if the commit messages ordering is correct or not
+
+Testing
+Push proper *.ko
+Push wpa_supplicant wpa_cli hostapd hostapd_cli
+Push wpa_supplicant.conf
+Push hostapd.conf
+
+wlconf -g -i ./wl18xx-conf.bin
+	wl18xx.ht.mode=0x01
+	wl18xx.phy.board_type=0x04
+	core.fwlog.mode=0x00
+	core.fwlog.output=0x01
+	wl18xx.phy.number_of_assembled_ant2_4=0x01
+
