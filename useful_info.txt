@@ -95,9 +95,6 @@ setenv bootargs console=ttyO2,115200n8 mem=920M@0x80000000 root=/dev/mmcblk1p2 r
 setenv bootcmd 'mmcinit 0;fatload mmc 0 0x80000000 uImage;bootm 80000000'
 boot
 
-git blame  arch/arm/mach-omap2/board-4430sdp.c
-git show 33ccb504
-
 Getting WLAN tree alone
 =======================
 git clone ssh://android.dal.design.ti.com:29418/platform/hardware/ti/wlan.git
@@ -118,6 +115,10 @@ USEFUL git commands
 Git or repo resubmitting the changed patch:
 ===========================================
 git push ssh://Manjunatha@review.omapzoom.org:29418/platform/hardware/ti/wpan.git HEAD:refs/changes/13447
+git log --decorate=short
+git push -u origin master
+git rebase --interactive HEAD~27
+git blame  arch/arm/mach-omap2/board-4430sdp.c
 
 Reset topmost n patches
 ========================
@@ -667,7 +668,7 @@ iperf -s -w64k
 omap board:
 iperf -c <ip> -i1 -t60 -w64k
 
-./wget_android --no-proxy --no-cache http://10.0.0.3/pictures/random_50MB.jpg -O /dev/null
+./wget --no-proxy --no-cache http://10.0.0.3/pictures/random_50MB.jpg -O /dev/null
 
 insmod /system/lib/modules/compat.ko
 insmod /system/lib/modules/cfg80211.ko
@@ -1406,17 +1407,21 @@ cd /data/ptl/bin/
 
 QoS tests:
 -	On the AP PC , open an Iperf UDP server on port 6000 , 1Mbps BW for 10 Sec
+iperf -s -u -p6000 -i1
 -	In the Sniffer capture verify
 1) Best Effort
 - Iperf TX from board -S0
+iperf -c 192.168.0.99 -p6000 -i1 -t10 -S0 -b1M
 - Last 3 bits in the QoS Control Field are 000.
 - The words "Best Effort" are attached to "QoS Control Field"
 2) Video
 - Iperf TX from board -S160
+iperf -c 192.168.0.99 -p6000 -i1 -t10 -S160 -b1M
 - Last 3 bits in the QoS Control Field are 100/101.
 - The words "Video" are attached to "QoS Control Field"
 3) Voice
 - Iperf TX from board -S224
+iperf -c 192.168.0.99 -p6000 -i1 -t10 -S224 -b1M
 - Last 3 bits in the QoS Control Field are 110/111.
 - The words "Voice" are attached to "QoS Control Field"
 
@@ -1555,4 +1560,31 @@ wlconf -g -i ./wl18xx-conf.bin
 	core.fwlog.mode=0x00
 	core.fwlog.output=0x01
 	wl18xx.phy.number_of_assembled_ant2_4=0x01
+        BOARD_TYPE_EVB_18XX     = 0,
+        BOARD_TYPE_DVP_18XX     = 1,
+        BOARD_TYPE_HDK_18XX     = 2,
+        BOARD_TYPE_FPGA_18XX    = 3,
+        BOARD_TYPE_COM8_18XX    = 4,
+enum wl18xx_ht_mode {
+        HT_MODE_MIMO = 0,
+        /* Wide - use SISO40 */
+        HT_MODE_WIDE = 1,
+        /* Use SISO20 */
+        HT_MODE_SISO20 = 2,
 
+How to update IP forwarding table
+iptables -A FORWARD -i eth0 -o wlan0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i wlan0 -o eth0 -m state --state INVALID -j DROP
+iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+Roaming procedure:
+-	Have 2 AP configured with same SSID.
+-	Remove /data/misc/wifi/wpa_supplicant.conf
+-	Connect to one of the AP's
+-	Launch wpa_cli and do the following to enable roaming
+o	set_network 0 bgscan '"learn:10:-65:15"'
+o	disable_network 0
+o	enable_network 0
+-	Remove the antennas of the AP that SUT is connected to, and  it will auto-matically connect to the other backup AP with same SSID
