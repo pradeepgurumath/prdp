@@ -404,6 +404,7 @@ userdata.img --> $mydroid/out/target/product/<platform>/userdata.img
 
 Modifying IMG files
 ===================
+Link: http://omappedia.org/wiki/Using_EMMC_on_OMAP4_devices
 BOOT.IMG
 ========
 boot.img = zImage + ramdisk.img
@@ -1525,19 +1526,19 @@ ON Tablet:
     iw phy phy0 interface add p2p0 type managed
     setprop ctl.start "p2p_supplicant"
 
-Device:                Blaze tablet                                                                                                                                   sink
-MAC addr:    7c:8e:e4:25:92:65                                                                                                                00:18:31:a6:b6:01
-P2P-role:                P2P-GO                                                                                                                                 P2P-station
+Device:   Blaze tablet                                                                                       sink
+MAC addr: 7c:8e:e4:25:92:65                                                                             00:18:31:a6:b6:01
+P2P-role: P2P-GO                                                                                        P2P-station
 Commands:
-   1.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_find
-    ( wait until we see the mac address of the sink )
-   2.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_stop
-   3.                  wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_group_add  freq=2412
-   4.                  wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 p2p_invite group=p2p-p2p0-0 peer=00:18:31:a6:b6:01
-   5.                                                                                                                                                                    press the push button ( or wpa_cli wps_pbc)
-   6.                  wpa_cli wps_pbc
-   7.                  wpa_cli status                                                                                                                            wpa_cli status
-   8.                  ifconfig p2p-p2p0-0 192.168.49.1                                                                                             ifconfig wlan0 192.168.49.2
+1. wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_find
+( wait until we see the mac address of the sink)
+2. wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_stop
+3. wpa_cli -i/data/misc/wifi/sockets/p2p0 p2p_group_add  freq=2412
+4. wpa_cli -i/data/misc/wifi/sockets/p2p-p2p0-0 p2p_invite group=p2p-p2p0-0 peer=00:18:31:a6:b6:01
+5.                                                                                                      press the push button(or wpa_cli wps_pbc)
+6. wpa_cli wps_pbc
+7. wpa_cli status                                                                                       wpa_cli status
+8. ifconfig p2p-p2p0-0 192.168.49.1                                                                     ifconfig wlan0 192.168.49.2
 
    
 To open a web browser
