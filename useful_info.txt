@@ -16,8 +16,10 @@ repo sync
 
 Getting Public Jelly Bean
 =========================
-repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-dev
+repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-mr0-dev
+
 (old)
+repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-dev
 repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b jb-release
 
 ICE BUILD
@@ -1404,6 +1406,8 @@ cd /data/ptl/bin/
 
 # run the ptl command.
 /ptl/bin/ptl -f /ptl/scripts/Cross_OS_AV_Playback_Play_3files.ptl -d fileName1="http://192.168.0.99/Streaming/ptl/AV_Brave_1080p_60fps_H264_ACC_LC_15mbps_BaseProfile.mp4" -d fileName2="http://192.168.0.99/Streaming/ptl/AV_TheAvengers_1080p_60fps_H264_ACC_LC_20mbps_HighProfile.mp4" -d fileName3="http://192.168.0.99/Streaming/ptl/AV_Titans_1080p_60fps_H264_ACC_LC_20mbps_MainProfile.mp4" -d durationInSeconds=10 -d numIterations=1000 -d TCid=L_SC615_00006_R_
+
+/ptl/bin/ptl -f /ptl/scripts/Cross_OS_WLAN_ConnectDisconnect.ptl -d ssid=NETGEAR -d key=spunky666 -d auth="AUTHENTICATION_NONE" -d enc="ENCRYPTION_NONE" -d numIterations=2000 -d durationInSeconds=30 -d TCid=L_SC600_00011_R_
 
 
 QoS tests:
